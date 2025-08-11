@@ -21,3 +21,4 @@ RUN npm ci
 RUN npm run build
 
 CMD ["bash", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"]
+RUN echo "zend.exception_ignore_args=Off" > /usr/local/etc/php/conf.d/sentry.ini

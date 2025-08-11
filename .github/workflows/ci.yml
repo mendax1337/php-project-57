@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+
+    services:
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo, sqlite, pgsql, pdo_sqlite, pdo_pgsql, zip
+          coverage: none
+          tools: composer:v2, phpstan, phpcs
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install PHP deps
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Install Node deps
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Lint (PHPCS PSR12)
+        run: |
+          if [ ! -f phpcs.xml ] && [ ! -f phpcs.xml.dist ]; then vendor/bin/phpcs --config-set installed_paths vendor/squizlabs/php_codesniffer;
+          fi
+          vendor/bin/phpcs --standard=PSR12 app/ routes/ tests/ database/ || (echo "::error::PHPCS failed" && exit 1)
+
+      - name: Static analysis (PHPStan)
+        run: |
+          if [ ! -f phpstan.neon ] && [ ! -f phpstan.neon.dist ]; then echo "parameters:\n  level: 6\n  paths:\n    - app\n    - tests" > phpstan.neon.dist; fi
+          vendor/bin/phpstan analyse --no-progress
+
+      - name: PHPUnit
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          APP_KEY: base64:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=
+        run: php artisan test --no-interaction --testsuite=Unit --colors=always
