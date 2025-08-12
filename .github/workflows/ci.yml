@@ -39,15 +39,14 @@ jobs:
         run: npm run build
 
       - name: Lint (PHPCS PSR12)
-        run: |
-          if [ ! -f phpcs.xml ] && [ ! -f phpcs.xml.dist ]; then vendor/bin/phpcs --config-set installed_paths vendor/squizlabs/php_codesniffer;
-          fi
-          vendor/bin/phpcs --standard=PSR12 app/ routes/ tests/ database/ || (echo "::error::PHPCS failed" && exit 1)
+        run: phpcs --standard=PSR12 app/ routes/ tests/ database/
 
       - name: Static analysis (PHPStan)
         run: |
-          if [ ! -f phpstan.neon ] && [ ! -f phpstan.neon.dist ]; then echo "parameters:\n  level: 6\n  paths:\n    - app\n    - tests" > phpstan.neon.dist; fi
-          vendor/bin/phpstan analyse --no-progress
+          if [ ! -f phpstan.neon ] && [ ! -f phpstan.neon.dist ]; then
+            echo "parameters:\n  level: 6\n  paths:\n    - app\n    - tests" > phpstan.neon.dist
+          fi
+          phpstan analyse --no-progress
 
       - name: PHPUnit
         env:
