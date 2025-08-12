@@ -49,4 +49,4 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: ':memory:'
           APP_KEY: base64:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=
-        run: php artisan test --no-interaction --testsuite=Unit --colors=always
+        run: php artisan test --testsuite=Unit --colors=always
