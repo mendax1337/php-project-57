@@ -2,15 +2,15 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    /**
-     * A basic test example.
-     */
-    public function testThatTrueIsTrue(): void
+    public function testAppHelperReturnsContainer(): void
     {
-        $this->assertTrue(true);
+        $this->assertInstanceOf(
+            \Illuminate\Contracts\Container\Container::class,
+            app()
+        );
     }
 }
