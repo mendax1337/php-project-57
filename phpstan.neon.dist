@@ -13,13 +13,12 @@ parameters:
     - php
 
   excludePaths:
-    - vendor
-    - storage
-    - bootstrap/cache
-    - public
+    - vendor/*
+    - storage/*
+    - bootstrap/cache/*
+    - public/*
 
-  tips:
-    discoveringSymbols: false
+  tipsOfTheDay: false
 
   reportUnmatchedIgnoredErrors: false
   reportMaybesInPropertyPhpDocTypes: false
