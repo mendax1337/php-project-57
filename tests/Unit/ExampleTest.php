@@ -2,15 +2,13 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    public function testAppHelperReturnsContainer(): void
+    public function testStrHelperWorks(): void
     {
-        $this->assertInstanceOf(
-            \Illuminate\Contracts\Container\Container::class,
-            app()
-        );
+        $this->assertSame('abc', Str::of('a')->append('bc')->value());
     }
 }
