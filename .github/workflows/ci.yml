@@ -42,11 +42,7 @@ jobs:
         run: phpcs --standard=PSR12 app/ routes/ tests/ database/
 
       - name: Static analysis (PHPStan)
-        run: |
-          if [ ! -f phpstan.neon ] && [ ! -f phpstan.neon.dist ]; then
-            echo "parameters:\n  level: 6\n  paths:\n    - app\n    - tests" > phpstan.neon.dist
-          fi
-          phpstan analyse --no-progress
+        run: phpstan analyse --no-progress
 
       - name: PHPUnit
         env:
