@@ -38,8 +38,8 @@ jobs:
       - name: Build assets
         run: npm run build
 
-      - name: Lint (PHPCS PSR12)
-        run: phpcs --standard=PSR12 app/ routes/ tests/ database/
+      - name: Lint (PHPCS)
+        run: phpcs
 
       - name: Static analysis (PHPStan)
         run: phpstan analyse --no-progress

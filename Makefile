@@ -34,10 +34,10 @@ test-coverage:
 	XDEBUG_MODE=coverage php artisan test --coverage-clover build/coverage.xml
 
 lint:
-	vendor/bin/phpcs --standard=PSR12 app/ routes/ tests/ database/
+	vendor/bin/phpcs
 
 lint-fix:
-	vendor/bin/phpcbf --standard=PSR12 app/ routes/ tests/ database/
+	vendor/bin/phpcbf
 
 stan:
 	vendor/bin/phpstan analyse --no-progress --memory-limit=768M
