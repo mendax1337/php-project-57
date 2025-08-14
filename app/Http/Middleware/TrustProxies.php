@@ -7,15 +7,10 @@ use Illuminate\Http\Request;
 
 class TrustProxies extends Middleware
 {
-    /**
-     * Trust all proxies (Render / любой reverse-proxy).
-     * Можно сузить до конкретных IP.
-     */
+    // Доверяем всем прокси (Render за reverse-proxy)
     protected $proxies = '*';
 
-    /**
-     * Заголовки прокси, которые учитываются фреймворком.
-     */
+    // Учитываем стандартные заголовки с прокси
     protected $headers = Request::HEADER_X_FORWARDED_FOR
     | Request::HEADER_X_FORWARDED_HOST
     | Request::HEADER_X_FORWARDED_PORT

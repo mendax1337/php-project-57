@@ -12,8 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // ...
+        // доверяем прокси и хосты
+        $middleware->trustProxies(at: \App\Http\Middleware\TrustProxies::class);
+        $middleware->trustHosts(at: \App\Http\Middleware\TrustHosts::class ?? null);
     })
+
     ->withExceptions(function (Exceptions $exceptions) {
         Integration::handles($exceptions);
     })
