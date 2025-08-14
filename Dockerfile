@@ -23,8 +23,17 @@ COPY . .
 
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-RUN npm ci --include=dev \
- && npm run build \
- && npm prune --omit=dev
+ENV NPM_CONFIG_PRODUCTION=false
+RUN npm ci --no-audit --no-fund
+
+RUN npm run build
+
+RUN test -f public/build/manifest.json \
+ && echo "=== manifest.json ===" \
+ && head -c 300 public/build/manifest.json || (echo "manifest.json NOT FOUND" && exit 1)
+RUN echo "=== ls public/build ===" && ls -la public/build || true
+RUN echo "=== ls public/build/assets ===" && ls -la public/build/assets || true
+
+RUN npm prune --omit=dev
 
 CMD ["bash", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"]
