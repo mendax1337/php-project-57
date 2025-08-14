@@ -27,5 +27,4 @@ RUN npm ci --include=dev \
  && npm run build \
  && npm prune --omit=dev
 
-# Запуск приложения
 CMD ["bash", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"]
