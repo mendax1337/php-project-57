@@ -36,4 +36,4 @@ RUN echo "=== ls public/build/assets ===" && ls -la public/build/assets || true
 
 RUN npm prune --omit=dev
 
-CMD ["bash", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"]
+CMD ["bash", "-lc", "php artisan migrate --force && php artisan optimize:clear && php artisan serve --host=0.0.0.0 --port=$PORT"]
