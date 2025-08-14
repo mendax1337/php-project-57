@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Доверяем всем прокси (Render за reverse-proxy)
+        // Доверяем прокси (Render) + учитываем стандартные заголовки
         $middleware->trustProxies(
             at: ['*'],
             headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR
@@ -21,12 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
             | \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO
             | \Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB
         );
-
-        // Разрешённые хосты (регэкспы). Добавим Render-домен и всё из APP_URL.
-        $middleware->trustHosts(at: [
-            'task-manager-kpx5\.onrender\.com',
-            $middleware->allSubdomainsOfApplicationUrl(),
-        ]);
     })
 
     ->withExceptions(function (Exceptions $exceptions) {
