@@ -19,12 +19,13 @@ RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
 COPY . .
 
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-RUN npm ci
-RUN npm run build
+RUN npm ci --include=dev \
+ && npm run build \
+ && npm prune --omit=dev
 
+# Запуск приложения
 CMD ["bash", "-c", "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"]
