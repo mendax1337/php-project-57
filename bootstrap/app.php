@@ -12,9 +12,21 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // доверяем прокси и хосты
-        $middleware->trustProxies(at: \App\Http\Middleware\TrustProxies::class);
-        $middleware->trustHosts(at: \App\Http\Middleware\TrustHosts::class ?? null);
+        // Доверяем всем прокси (Render за reverse-proxy)
+        $middleware->trustProxies(
+            at: ['*'],
+            headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR
+            | \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST
+            | \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT
+            | \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO
+            | \Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB
+        );
+
+        // Разрешённые хосты (регэкспы). Добавим Render-домен и всё из APP_URL.
+        $middleware->trustHosts(at: [
+            'task-manager-kpx5\.onrender\.com',
+            $middleware->allSubdomainsOfApplicationUrl(),
+        ]);
     })
 
     ->withExceptions(function (Exceptions $exceptions) {
