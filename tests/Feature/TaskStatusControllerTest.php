@@ -28,12 +28,13 @@ class TaskStatusControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        // Используем имя, которого нет среди сидированных статусoв
         $response = $this->post(route('task_statuses.store'), [
-            'name' => 'новый',
+            'name' => 'дополнительный статус',
         ]);
 
         $response->assertRedirect(route('task_statuses.index'));
-        $this->assertDatabaseHas('task_statuses', ['name' => 'новый']);
+        $this->assertDatabaseHas('task_statuses', ['name' => 'дополнительный статус']);
     }
 
     public function test_authenticated_can_update_status(): void
