@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskStatusController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
 Route::get('/', function () {
     return view('home');
@@ -35,6 +36,13 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/task_statuses/{task_status}', [TaskStatusController::class, 'destroy'])
         ->name('task_statuses.destroy');
+});
+
+// Временный секретный маршрут для запуска миграций и сидов на Render
+// ⚠️ После использования удалить этот код!
+Route::get('/run-migrations', function () {
+    Artisan::call('migrate', ['--force' => true, '--seed' => true]);
+    return '✅ Migrations and seeds executed successfully';
 });
 
 require __DIR__ . '/auth.php';
