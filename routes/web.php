@@ -39,23 +39,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
-
-// ⚠️ Временный секретный маршрут для деплоя.
-// Выполняет миграции и сидинг, при ошибке выводит текст исключения.
-Route::get('/run-migrations', function () {
-    try {
-        Artisan::call('migrate:fresh', ['--force' => true]);
-        Artisan::call('db:seed', ['--force' => true]);
-
-        return response()->json([
-            'status' => 'ok',
-            'output' => Artisan::output(),
-        ]);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'status'   => 'error',
-            'message'  => $e->getMessage(),
-            'trace'    => $e->getTraceAsString(),
-        ], 500);
-    }
-});
