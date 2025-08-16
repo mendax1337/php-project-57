@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskStatusController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('home');
@@ -36,6 +37,48 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/task_statuses/{task_status}', [TaskStatusController::class, 'destroy'])
         ->name('task_statuses.destroy');
+});
+
+Route::get('/__debug_db', function () {
+    try {
+        $default = config('database.default');
+        $conn = config("database.connections.$default");
+
+        $users = DB::table('users')->count();
+        $statuses = DB::table('task_statuses')->count();
+
+        // Проверим версию сервера и текущую БД (для Postgres)
+        $serverVersion = DB::select('select version() as v')[0]->v ?? null;
+        $currentDb = null;
+        if (($conn['driver'] ?? null) === 'pgsql') {
+            $currentDb = DB::select('select current_database() as db')[0]->db ?? null;
+        }
+
+        return response()->json([
+            'env' => app()->environment(),
+            'app_url' => config('app.url'),
+            'database' => [
+                'default' => $default,
+                'driver' => $conn['driver'] ?? null,
+                'host' => $conn['host'] ?? null,
+                'database' => $conn['database'] ?? $currentDb,
+                'url_env' => env('DATABASE_URL') ? 'SET' : 'MISSING',
+            ],
+            'counts' => [
+                'users' => $users,
+                'task_statuses' => $statuses,
+            ],
+            'server' => [
+                'version' => $serverVersion,
+            ],
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
 });
 
 require __DIR__ . '/auth.php';
