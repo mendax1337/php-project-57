@@ -10,11 +10,14 @@ class PasswordConfirmationTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Общий путь для подтверждения пароля */
+    private const CONFIRM_PASSWORD_URI = '/confirm-password';
+
     public function test_confirm_password_screen_can_be_rendered(): void
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/confirm-password');
+        $response = $this->actingAs($user)->get(self::CONFIRM_PASSWORD_URI);
 
         $response->assertStatus(200);
     }
@@ -23,7 +26,7 @@ class PasswordConfirmationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post('/confirm-password', [
+        $response = $this->actingAs($user)->post(self::CONFIRM_PASSWORD_URI, [
             'password' => 'password',
         ]);
 
@@ -35,7 +38,7 @@ class PasswordConfirmationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post('/confirm-password', [
+        $response = $this->actingAs($user)->post(self::CONFIRM_PASSWORD_URI, [
             'password' => 'wrong-password',
         ]);
 
