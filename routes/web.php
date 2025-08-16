@@ -38,11 +38,24 @@ Route::middleware('auth')->group(function () {
         ->name('task_statuses.destroy');
 });
 
-// Временный секретный маршрут для запуска миграций и сидов на Render
-// ⚠️ После использования удалить этот код!
-Route::get('/run-migrations', function () {
-    Artisan::call('migrate', ['--force' => true, '--seed' => true]);
-    return '✅ Migrations and seeds executed successfully';
-});
-
 require __DIR__ . '/auth.php';
+
+// ⚠️ Временный секретный маршрут для деплоя.
+// Выполняет миграции и сидинг, при ошибке выводит текст исключения.
+Route::get('/run-migrations', function () {
+    try {
+        Artisan::call('migrate:fresh', ['--force' => true]);
+        Artisan::call('db:seed', ['--force' => true]);
+
+        return response()->json([
+            'status' => 'ok',
+            'output' => Artisan::output(),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status'   => 'error',
+            'message'  => $e->getMessage(),
+            'trace'    => $e->getTraceAsString(),
+        ], 500);
+    }
+});
