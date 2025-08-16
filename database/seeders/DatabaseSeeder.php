@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\TaskStatus;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,23 +14,25 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Тестовый пользователь (для локальной разработки)
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'), // чтобы можно было войти
-        ]);
+        // Создаём тестового пользователя напрямую
+        User::updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => Hash::make('password'), // пароль: password
+            ]
+        );
 
-        // Начальные статусы для задач
+        // Начальные статусы задач
         $statuses = [
-            'новый',
-            'в работе',
-            'на тестировании',
-            'завершен',
+            'new',
+            'in progress',
+            'testing',
+            'done',
         ];
 
         foreach ($statuses as $status) {
-            TaskStatus::firstOrCreate(['name' => $status]);
+            TaskStatus::updateOrCreate(['name' => $status]);
         }
     }
 }
