@@ -20,9 +20,6 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
-        if (! $user) {
-            abort(401);
-        }
 
         $user->fill($request->validated());
 
@@ -37,14 +34,11 @@ class ProfileController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
-        $user = $request->user();
-        if (! $user) {
-            abort(401);
-        }
-
-        $request->validate([
+        $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
+
+        $user = $request->user();
 
         Auth::logout();
 
