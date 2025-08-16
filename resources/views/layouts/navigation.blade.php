@@ -8,13 +8,19 @@
                     </a>
                 </div>
 
-                @auth
-                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                {{-- Основное меню (desktop) --}}
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    {{-- Всегда доступно --}}
+                    <x-nav-link :href="route('task_statuses.index')" :active="request()->routeIs('task_statuses.*')">
+                        {{ __('Статусы') }}
+                    </x-nav-link>
+
+                    @auth
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             {{ __('Dashboard') }}
                         </x-nav-link>
-                    </div>
-                @endauth
+                    @endauth
+                </div>
             </div>
 
             {{-- Правый блок: у гостя всегда видны кнопки входа/регистрации --}}
@@ -71,6 +77,11 @@
     {{-- Мобильное меню --}}
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            {{-- Всегда доступно --}}
+            <x-responsive-nav-link :href="route('task_statuses.index')" :active="request()->routeIs('task_statuses.*')">
+                {{ __('Статусы') }}
+            </x-responsive-nav-link>
+
             @auth
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     {{ __('Dashboard') }}
