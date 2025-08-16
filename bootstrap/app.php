@@ -38,6 +38,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 'port'     => request()->getPort(),
                 'app_url'  => config('app.url'),
                 'user_id'  => optional(request()->user())->id,
+                'exception' => get_class($e),
+                'message'   => $e->getMessage(),
             ]);
         });
     })
