@@ -37,4 +37,4 @@ Route::middleware('auth')->group(function () {
         ->name('task_statuses.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require_once __DIR__ . '/auth.php';
