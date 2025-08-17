@@ -5,12 +5,12 @@
         <!-- Name -->
         <div>
             <x-input-label for="name" :value="__('Name')" />
-            <x-text-input
+            <input
                 id="name"
                 class="block mt-1 w-full"
                 type="text"
                 name="name"
-                :value="old('name')"
+                value="{{ old('name') }}"
                 required
                 autofocus
                 autocomplete="name"
@@ -21,12 +21,12 @@
         <!-- Email Address -->
         <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input
+            <input
                 id="email"
                 class="block mt-1 w-full"
                 type="email"
                 name="email"
-                :value="old('email')"
+                value="{{ old('email') }}"
                 required
                 autocomplete="email"
             />
