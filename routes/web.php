@@ -35,10 +35,12 @@ Route::get('/task_statuses', [TaskStatusController::class, 'index'])
     ->name('task_statuses.index');
 
 Route::middleware('auth')->group(function () {
-    // Профиль
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Профиль (сгруппировано, чтобы убрать дублирование "profile")
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+    });
 
     // CRUD статусов
     Route::get('/task_statuses/create', [TaskStatusController::class, 'create'])
