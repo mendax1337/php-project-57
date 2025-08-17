@@ -2,7 +2,10 @@
 
 use Illuminate\Support\Str;
 
-const LOCALHOST = '127.0.0.1';
+// Безопасно объявляем константу один раз (исключит WARN в тестах)
+if (!defined('LOCALHOST')) {
+    define('LOCALHOST', '127.0.0.1');
+}
 
 return [
 
