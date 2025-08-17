@@ -20,12 +20,12 @@
         <!-- Name -->
         <div>
             <x-input-label for="name" :value="__('Name')" />
-            <x-text-input
+            <input
                 id="name"
                 name="name"
                 type="text"
                 class="mt-1 block w-full"
-                :value="old('name', $user->name)"
+                value="{{ old('name', $user->name) }}"
                 required
                 autofocus
                 autocomplete="name"
@@ -36,14 +36,14 @@
         <!-- Email -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input
+            <input
                 id="email"
                 name="email"
                 type="email"
                 class="mt-1 block w-full"
-                :value="old('email', $user->email)"
+                value="{{ old('email', $user->email) }}"
                 required
-                autocomplete="username"
+                autocomplete="email"
             />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
