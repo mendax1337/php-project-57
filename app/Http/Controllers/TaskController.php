@@ -9,12 +9,11 @@ use App\Models\TaskStatus;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder as SpatieQueryBuilder;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class TaskController extends Controller implements HasMiddleware
 {
@@ -27,25 +26,22 @@ class TaskController extends Controller implements HasMiddleware
         ];
     }
 
-    public function index(Request $request): View
+    public function index(): View
     {
+        /** @var QueryBuilder<Task> $qb */
+        $qb = QueryBuilder::for(Task::class)
+            ->with(['status', 'creator', 'assignee'])
+            ->allowedFilters([
+                AllowedFilter::exact('status_id'),
+                AllowedFilter::exact('created_by_id'),
+                AllowedFilter::exact('assigned_to_id'),
+            ])
+            ->latest('id');
+
+        $tasks = $qb->paginate(15)->withQueryString();
+
         $statuses = TaskStatus::query()->orderBy('id')->pluck('name', 'id');
-        $users    = User::query()->orderBy('name')->pluck('name', 'id');
-
-        /** @var SpatieQueryBuilder<\App\Models\Task> $qb */
-        $qb = SpatieQueryBuilder::for(Task::class);
-
-        $qb->allowedFilters([
-            AllowedFilter::exact('status_id'),
-            AllowedFilter::exact('created_by_id'),
-            AllowedFilter::exact('assigned_to_id'),
-        ]);
-
-        /** @phpstan-ignore-next-line */
-        $qb->with(['status', 'creator', 'assignee'])
-            ->orderBy('id');
-
-        $tasks = $qb->paginate(15)->appends($request->query());
+        $users    = User::query()->orderBy('id')->pluck('name', 'id');
 
         return view('tasks.index', compact('tasks', 'statuses', 'users'));
     }
@@ -53,6 +49,7 @@ class TaskController extends Controller implements HasMiddleware
     public function show(Task $task): View
     {
         $task->load(['status', 'creator', 'assignee', 'labels']);
+
         return view('tasks.show', compact('task'));
     }
 
@@ -80,7 +77,7 @@ class TaskController extends Controller implements HasMiddleware
     public function edit(Task $task): View
     {
         return view('tasks.edit', [
-            'task'     => $task,
+            'task'     => $task->load('labels'),
             'statuses' => TaskStatus::query()->pluck('name', 'id'),
             'users'    => User::query()->pluck('name', 'id'),
             'labels'   => \App\Models\Label::query()->pluck('name', 'id'),

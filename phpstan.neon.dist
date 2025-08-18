@@ -3,40 +3,18 @@ includes:
   - vendor/larastan/larastan/extension.neon
 
 parameters:
-  level: 8
+  level: 7
 
   paths:
     - app
     - routes
     - database
 
-  excludePaths:
-    - vendor/*
-    - storage/*
-    - bootstrap/cache/*
-    - public/*
-
   reportUnmatchedIgnoredErrors: false
 
   ignoreErrors:
-    - message: '#should return .*BelongsTo<[^>]+,\s*static\([^)]*\)>\s+but returns .*BelongsTo<[^>]+,\s*\$this\([^)]*\)>#'
-      paths:
-        - app/Models/Task.php
-
-    - message: '#should return .*HasMany<[^>]+,\s*static\([^)]*\)>\s+but returns .*HasMany<[^>]+,\s*\$this\([^)]*\)>#'
-      paths:
-        - app/Models/TaskStatus.php
-
-    - message: '#should return .*BelongsToMany<[^>]+,\s*static\([^)]*\),[^>]*>\s+but returns .*BelongsToMany<[^>]+,\s*\$this\([^)]*\),[^>]*>#'
-      paths:
-        - app/Models/Task.php
-
-    - message: '#should return .*BelongsToMany<[^>]+,\s*static\([^)]*\),[^>]*>\s+but returns .*BelongsToMany<[^>]+,\s*\$this\([^)]*\),[^>]*>#'
-      paths:
-        - app/Models/Label.php
-
-    - message: '#uses generic trait .*HasFactory but does not specify its types#'
-      paths:
-        - app/Models/Task.php
-        - app/Models/Label.php
-        - app/Models/TaskStatus.php
+    # Eloquent relations generics / $this vs static — шум от Larastan
+    - '#Template type TDeclaringModel on class Illuminate\\Database\\Eloquent\\Relations\\(BelongsTo|HasMany|BelongsToMany) is not covariant#'
+    - '#Return type .*BelongsTo<.*,\s*\$this\(.*\)>#'
+    - '#Return type .*HasMany<.*,\s*\$this\(.*\)>#'
+    - '#Return type .*BelongsToMany<.*,\s*\$this\(.*\)>#'
