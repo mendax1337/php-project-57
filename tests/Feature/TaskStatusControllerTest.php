@@ -63,4 +63,23 @@ class TaskStatusControllerTest extends TestCase
         $response->assertRedirect(route('task_statuses.index'));
         $this->assertDatabaseMissing('task_statuses', ['id' => $status->id]);
     }
+
+    public function test_status_in_use_cannot_be_deleted(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        $this->actingAs($user);
+
+        $status = \App\Models\TaskStatus::factory()->create();
+        \App\Models\Task::factory()->create([
+            'status_id' => $status->id,
+            'created_by_id' => $user->id,
+        ]);
+
+        $response = $this->delete(route('task_statuses.destroy', $status));
+        $response->assertRedirect(route('task_statuses.index'));
+        $response->assertSessionHas('error', 'Не удалось удалить статус');
+
+        $this->assertDatabaseHas('task_statuses', ['id' => $status->id]);
+    }
+
 }

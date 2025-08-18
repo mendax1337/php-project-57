@@ -5,75 +5,92 @@ namespace App\Http\Controllers;
 use App\Models\TaskStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class TaskStatusController extends Controller
 {
-    // Список статусов (доступен всем)
-    public function index(): View
+    /**
+     * Список статусов — доступен всем.
+     */
+    public function index(): \Illuminate\View\View
     {
-        $statuses = TaskStatus::orderBy('id')->paginate(15);
+        $statuses = \App\Models\TaskStatus::query()
+            ->orderBy('id')
+            ->paginate(20);
 
         return view('task_statuses.index', compact('statuses'));
     }
 
-    // Форма создания (только для авторизованных)
+    /**
+     * Форма создания — только для авторизованных (см. routes).
+     */
     public function create(): View
     {
         return view('task_statuses.create');
     }
 
-    // Сохранение нового статуса
+    /**
+     * Создание статуса.
+     */
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'min:1', 'max:255', 'unique:task_statuses,name'],
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:task_statuses,name'],
+        ], [
+            'name.required' => 'Это обязательное поле.',
+            'name.unique'   => 'Такое значение поля name уже существует.',
         ]);
 
-        TaskStatus::create($data);
+        TaskStatus::create($validated);
 
-        flash('Статус успешно создан')->success();
-
-        return redirect()->route('task_statuses.index');
+        return redirect()
+            ->route('task_statuses.index')
+            ->with('success', 'Статус создан');
     }
 
-    // Форма редактирования
+    /**
+     * Форма редактирования.
+     */
     public function edit(TaskStatus $task_status): View
     {
-        return view('task_statuses.edit', ['status' => $task_status]);
+        return view('task_statuses.edit', compact('task_status'));
     }
 
-    // Обновление
+    /**
+     * Обновление статуса.
+     */
     public function update(Request $request, TaskStatus $task_status): RedirectResponse
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'min:1', 'max:255', 'unique:task_statuses,name,' . $task_status->id],
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:task_statuses,name,' . $task_status->id],
+        ], [
+            'name.required' => 'Это обязательное поле.',
+            'name.unique'   => 'Такое значение поля name уже существует.',
         ]);
 
-        $task_status->update($data);
+        $task_status->update($validated);
 
-        flash('Статус успешно обновлён')->success();
-
-        return redirect()->route('task_statuses.index');
+        return redirect()
+            ->route('task_statuses.index')
+            ->with('success', 'Статус обновлён');
     }
 
-    // Удаление (запрещаем, если есть связанные задачи)
+    /**
+     * Удаление статуса.
+     * Если статус используется хотя бы в одной задаче — не удаляем и показываем флеш.
+     */
     public function destroy(TaskStatus $task_status): RedirectResponse
     {
-        // Пока таблицы tasks ещё может не быть — проверим её наличие
-        if (Schema::hasTable('tasks')) {
-            $linked = DB::table('tasks')->where('status_id', $task_status->id)->exists();
-            if ($linked) {
-                flash('Невозможно удалить статус: есть связанные задачи')->error();
-                return redirect()->route('task_statuses.index');
-            }
+        if ($task_status->tasks()->exists()) {
+            return redirect()
+                ->route('task_statuses.index')
+                ->with('error', 'Не удалось удалить статус');
         }
 
         $task_status->delete();
-        flash('Статус успешно удалён')->success();
 
-        return redirect()->route('task_statuses.index');
+        return redirect()
+            ->route('task_statuses.index')
+            ->with('success', 'Статус удалён');
     }
 }

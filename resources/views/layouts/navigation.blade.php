@@ -15,6 +15,10 @@
                         {{ __('Статусы') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
+                        {{ __('Задачи') }}
+                    </x-nav-link>
+
                     @auth
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             {{ __('Dashboard') }}
@@ -88,6 +92,10 @@
             {{-- Всегда доступно --}}
             <x-responsive-nav-link :href="route('task_statuses.index')" :active="request()->routeIs('task_statuses.*')">
                 {{ __('Статусы') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
+                {{ __('Задачи') }}
             </x-responsive-nav-link>
 
             @auth

@@ -16,3 +16,22 @@ parameters:
     - public/*
 
   reportUnmatchedIgnoredErrors: false
+
+  ignoreErrors:
+    # Larastan generic-ковариантность для BelongsTo (статический тип vs $this)
+    - message: '#should return .*BelongsTo<.*> but returns .*BelongsTo<.*\$this\(.*\)>#'
+      paths:
+        - app/Models/Task.php
+
+    - message: '#BelongsTo is not covariant#'
+      paths:
+        - app/Models/Task.php
+
+    # Larastan generic-ковариантность для HasMany
+    - message: '#should return .*HasMany<.*> but returns .*HasMany<.*\$this\(.*\)>#'
+      paths:
+        - app/Models/TaskStatus.php
+
+    - message: '#HasMany is not covariant#'
+      paths:
+        - app/Models/TaskStatus.php
