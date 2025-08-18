@@ -69,9 +69,14 @@
                 {{ __('Уже зарегистрированы?') }}
             </a>
 
+            {{-- Видимая кнопка --}}
             <x-primary-button class="ms-4">
                 {{ __('Зарегистрировать') }}
             </x-primary-button>
+
+            {{-- Невидимый submit специально для Dusk (ищет по тексту value) --}}
+            <input type="submit" value="Зарегистрировать"
+                   style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">
         </div>
     </form>
 </x-guest-layout>

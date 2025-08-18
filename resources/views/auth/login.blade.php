@@ -32,7 +32,6 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        {{-- Запомнить меня --}}
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
                 <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
@@ -44,6 +43,9 @@
             <x-primary-button class="ms-4">
                 {{ __('Войти') }}
             </x-primary-button>
+
+            <input type="submit" value="Войти"
+                   style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">
         </div>
     </form>
 </x-guest-layout>
