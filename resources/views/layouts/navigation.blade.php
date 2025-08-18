@@ -19,6 +19,10 @@
                         {{ __('Задачи') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('labels.index')" :active="request()->routeIs('labels.*')">
+                        {{ __('Метки') }}
+                    </x-nav-link>
+
                     @auth
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             {{ __('Dashboard') }}
@@ -56,7 +60,7 @@
                                 {{ __('Profile') }}
                             </x-dropdown-link>
 
-                            {{-- Логаут: настоящая кнопка вместо ссылки с role="button" --}}
+                            {{-- Логаут: настоящая кнопка вместо ссылки --}}
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit"
@@ -96,6 +100,10 @@
 
             <x-responsive-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
                 {{ __('Задачи') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('labels.index')" :active="request()->routeIs('labels.*')">
+                {{ __('Метки') }}
             </x-responsive-nav-link>
 
             @auth
