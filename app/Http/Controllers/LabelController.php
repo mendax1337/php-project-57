@@ -25,7 +25,9 @@ class LabelController extends Controller implements HasMiddleware
 
     public function index(): View
     {
-        $labels = Label::query()->latest('id')->paginate(20);
+        $labels = Label::query()
+            ->orderBy('id', 'asc')
+            ->paginate(20);
 
         return view('labels.index', compact('labels'));
     }
