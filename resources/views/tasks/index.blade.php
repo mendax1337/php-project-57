@@ -22,10 +22,10 @@
                     <thead class="bg-gray-50">
                     <tr>
                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Name') }}</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Status') }}</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Author') }}</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Executor') }}</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Имя') }}</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Статус') }}</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Автор') }}</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Исполнитель') }}</th>
                         <th class="px-4 py-2"></th>
                     </tr>
                     </thead>
@@ -41,7 +41,7 @@
                             <td class="px-4 py-2">{{ $task->assignee?->name ?? '—' }}</td>
                             <td class="px-4 py-2 text-right">
                                 @auth
-                                    <a class="text-sm text-indigo-600 hover:underline me-3" href="{{ route('tasks.edit', $task) }}">{{ __('Edit') }}</a>
+                                    <a class="text-sm text-indigo-600 hover:underline me-3" href="{{ route('tasks.edit', $task) }}">{{ __('Редактировать') }}</a>
 
                                     @can('delete', $task)
                                         <form method="POST" action="{{ route('tasks.destroy', $task) }}" class="inline">
@@ -49,7 +49,7 @@
                                             @method('DELETE')
                                             <button type="submit" class="text-sm text-red-600 hover:underline"
                                                     onclick="return confirm('Удалить задачу?')"
-                                            >{{ __('Delete') }}</button>
+                                            >{{ __('Удалить') }}</button>
                                         </form>
                                     @endcan
                                 @endauth
