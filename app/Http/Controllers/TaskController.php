@@ -28,7 +28,7 @@ class TaskController extends Controller implements HasMiddleware
     public function index(): View
     {
         $tasks = Task::query()
-            ->with(['status', 'creator', 'assignee'])
+            ->with(['status', 'creator', 'assignee', 'labels'])
             ->latest('id')
             ->paginate(20);
 
