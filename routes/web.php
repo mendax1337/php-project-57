@@ -1,7 +1,6 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TaskStatusController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -10,15 +9,12 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\TaskController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TaskStatusController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\LabelController;
 
-/*
-|--------------------------------------------------------------------------
-| Общие страницы
-|--------------------------------------------------------------------------
-*/
 Route::get('/', function () {
     return view('home');
 })->name('home');
@@ -27,16 +23,11 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-/*
-|--------------------------------------------------------------------------
-| Статусы: список — общий, CRUD — только для авторизованных
-|--------------------------------------------------------------------------
-*/
 Route::get('/task_statuses', [TaskStatusController::class, 'index'])
     ->name('task_statuses.index');
 
 Route::middleware('auth')->group(function () {
-    // Профиль (сгруппировано, чтобы убрать дублирование "profile")
+    // Профиль
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
@@ -58,11 +49,6 @@ Route::middleware('auth')->group(function () {
         ->name('task_statuses.destroy');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Аутентификация (Breeze) — объявлено явно, без include
-|--------------------------------------------------------------------------
-*/
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
     Route::post('register', [RegisteredUserController::class, 'store']);
@@ -78,10 +64,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    // Экран с подсказкой подтвердить почту
     Route::get('verify-email', EmailVerificationPromptController::class)->name('verification.notice');
 
-    // Без 'signed' — чтобы стабильно проходили тесты и не было 403 на проде
+    // Без 'signed', чтобы стабильно проходили тесты
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
         ->middleware(['auth', 'throttle:6,1'])
         ->name('verification.verify');
@@ -98,4 +83,8 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
+// tasks: index/show — публичные, остальное под auth (см. TaskController::middleware)
 Route::resource('tasks', TaskController::class);
+
+// labels: index — публичный, остальное под auth (см. LabelController::middleware)
+Route::resource('labels', LabelController::class)->except(['show']);

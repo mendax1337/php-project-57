@@ -68,4 +68,16 @@
         </select>
         <x-input-error class="mt-2" :messages="$errors->get('assigned_to_id')" />
     </div>
+
+    {{-- labels --}}
+    <div>
+        <x-input-label for="labels" :value="__('Labels')" />
+        <select id="labels" name="labels[]" multiple
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            @foreach($labels as $id => $name)
+                <option value="{{ $id }}" @selected(collect(old('labels', optional($t)->labels->pluck('id')->all() ?? []))->contains($id))>{{ $name }}</option>
+            @endforeach
+        </select>
+    </div>
+
 </div>

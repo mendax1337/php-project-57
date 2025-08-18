@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\User;
+use App\Models\Label;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -36,7 +37,7 @@ class TaskController extends Controller implements HasMiddleware
 
     public function show(Task $task): View
     {
-        $task->load(['status', 'creator', 'assignee']);
+        $task->load(['status', 'creator', 'assignee', 'labels']);
 
         return view('tasks.show', compact('task'));
     }
@@ -47,6 +48,7 @@ class TaskController extends Controller implements HasMiddleware
             'task'     => new Task(),
             'statuses' => TaskStatus::query()->pluck('name', 'id'),
             'users'    => User::query()->pluck('name', 'id'),
+            'labels'   => Label::query()->pluck('name', 'id'),
         ]);
     }
 
@@ -54,10 +56,13 @@ class TaskController extends Controller implements HasMiddleware
     {
         $validated = $request->validated();
 
+        // создаём задачу и фиксируем автора
         $task = new Task($validated);
-        // auth middleware гарантирует пользователя; каст снимает nullable для phpstan
         $task->created_by_id = (int) auth()->id();
         $task->save();
+
+        // метки (может не быть ни одной)
+        $task->labels()->sync((array) $request->input('labels', []));
 
         return redirect()->route('tasks.index')->with('success', 'Task created');
     }
@@ -65,9 +70,10 @@ class TaskController extends Controller implements HasMiddleware
     public function edit(Task $task): View
     {
         return view('tasks.edit', [
-            'task'     => $task,
+            'task'     => $task->load('labels'),
             'statuses' => TaskStatus::query()->pluck('name', 'id'),
             'users'    => User::query()->pluck('name', 'id'),
+            'labels'   => Label::query()->pluck('name', 'id'),
         ]);
     }
 
@@ -76,6 +82,9 @@ class TaskController extends Controller implements HasMiddleware
         $validated = $request->validated();
 
         $task->update($validated);
+
+        // обновляем связи меток
+        $task->labels()->sync((array) $request->input('labels', []));
 
         return redirect()->route('tasks.index')->with('success', 'Task updated');
     }

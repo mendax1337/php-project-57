@@ -6,9 +6,14 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+    /**
+     * Seed the application's database.
+     */
     public function run(): void
     {
-        // Пока сидеры не используются.
-        // Добавим вызовы $this->call(YourSeeder::class) по мере необходимости.
+        // вызывать все нужные сидеры здесь
+        $this->call([
+            LabelSeeder::class,
+        ]);
     }
 }

@@ -4,6 +4,7 @@ includes:
 
 parameters:
   level: 8
+
   paths:
     - app
     - routes
@@ -18,20 +19,24 @@ parameters:
   reportUnmatchedIgnoredErrors: false
 
   ignoreErrors:
-    # Larastan generic-ковариантность для BelongsTo (статический тип vs $this)
-    - message: '#should return .*BelongsTo<.*> but returns .*BelongsTo<.*\$this\(.*\)>#'
+    - message: '#should return .*BelongsTo<[^>]+,\s*static\([^)]*\)>\s+but returns .*BelongsTo<[^>]+,\s*\$this\([^)]*\)>#'
       paths:
         - app/Models/Task.php
 
-    - message: '#BelongsTo is not covariant#'
-      paths:
-        - app/Models/Task.php
-
-    # Larastan generic-ковариантность для HasMany
-    - message: '#should return .*HasMany<.*> but returns .*HasMany<.*\$this\(.*\)>#'
+    - message: '#should return .*HasMany<[^>]+,\s*static\([^)]*\)>\s+but returns .*HasMany<[^>]+,\s*\$this\([^)]*\)>#'
       paths:
         - app/Models/TaskStatus.php
 
-    - message: '#HasMany is not covariant#'
+    - message: '#should return .*BelongsToMany<[^>]+,\s*static\([^)]*\),[^>]*>\s+but returns .*BelongsToMany<[^>]+,\s*\$this\([^)]*\),[^>]*>#'
       paths:
+        - app/Models/Task.php
+
+    - message: '#should return .*BelongsToMany<[^>]+,\s*static\([^)]*\),[^>]*>\s+but returns .*BelongsToMany<[^>]+,\s*\$this\([^)]*\),[^>]*>#'
+      paths:
+        - app/Models/Label.php
+
+    - message: '#uses generic trait .*HasFactory but does not specify its types#'
+      paths:
+        - app/Models/Task.php
+        - app/Models/Label.php
         - app/Models/TaskStatus.php
