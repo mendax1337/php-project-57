@@ -1,82 +1,52 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}" class="space-y-6">
-        @csrf
+    <x-auth-card>
+        <x-slot name="logo">
+            <x-application-logo class="w-16 h-16 fill-current text-gray-500" />
+        </x-slot>
 
-        {{-- Имя --}}
-        <div>
-            <x-input-label for="name" :value="__('Имя')" />
-            <x-text-input
-                id="name"
-                name="name"
-                type="text"
-                class="block mt-1 w-full"
-                :value="old('name')"
-                required
-                autofocus
-                autocomplete="name"
-            />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+        <!-- Validation Errors -->
+        <x-auth-validation-errors class="mb-4" :errors="$errors" />
 
-        {{-- Email --}}
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input
-                id="email"
-                name="email"
-                type="email"
-                class="block mt-1 w-full"
-                :value="old('email')"
-                required
-                autocomplete="username"
-            />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <form method="POST" action="{{ route('register') }}">
+            @csrf
 
-        {{-- Пароль --}}
-        <div>
-            <x-input-label for="password" :value="__('Пароль')" />
-            <x-text-input
-                id="password"
-                name="password"
-                type="password"
-                class="block mt-1 w-full"
-                required
-                autocomplete="new-password"
-            />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+            <!-- Name -->
+            <div>
+                <x-label for="name" :value="__('Имя')" />
+                <x-input id="name" class="block mt-1 w-full" type="text" name="name"
+                         :value="old('name')" required autofocus autocomplete="name" />
+            </div>
 
-        {{-- Подтверждение --}}
-        <div>
-            <x-input-label for="password_confirmation" :value="__('Подтверждение')" />
-            <x-text-input
-                id="password_confirmation"
-                name="password_confirmation"
-                type="password"
-                class="block mt-1 w-full"
-                required
-                autocomplete="new-password"
-            />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+            <!-- Email -->
+            <div class="mt-4">
+                <x-label for="email" :value="__('Email')" />
+                <x-input id="email" class="block mt-1 w-full" type="email" name="email"
+                         :value="old('email')" required autocomplete="email" />
+            </div>
 
-        <div class="flex items-center justify-end">
-            <a
-                class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                href="{{ route('login') }}"
-            >
-                {{ __('Уже зарегистрированы?') }}
-            </a>
+            <!-- Password -->
+            <div class="mt-4">
+                <x-label for="password" :value="__('Пароль')" />
+                <x-input id="password" class="block mt-1 w-full" type="password"
+                         name="password" required autocomplete="new-password" />
+            </div>
 
-            {{-- Видимая кнопка --}}
-            <x-primary-button class="ms-4">
-                {{ __('Зарегистрировать') }}
-            </x-primary-button>
+            <!-- Confirm Password -->
+            <div class="mt-4">
+                <x-label for="password_confirmation" :value="__('Подтверждение')" />
+                <x-input id="password_confirmation" class="block mt-1 w-full" type="password"
+                         name="password_confirmation" required autocomplete="new-password" />
+            </div>
 
-            {{-- Невидимый submit специально для Dusk (ищет по тексту value) --}}
-            <input type="submit" value="Зарегистрировать"
-                   style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">
-        </div>
-    </form>
+            <div class="flex items-center justify-end mt-4">
+                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">
+                    {{ __('Уже зарегистрированы?') }}
+                </a>
+
+                <x-button class="ml-4">
+                    {{ __('Зарегистрировать') }}
+                </x-button>
+            </div>
+        </form>
+    </x-auth-card>
 </x-guest-layout>

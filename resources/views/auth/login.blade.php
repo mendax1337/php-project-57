@@ -1,51 +1,37 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('login') }}" class="space-y-6">
-        @csrf
+    <x-auth-card>
+        <x-slot name="logo">
+            <x-application-logo class="w-16 h-16 fill-current text-gray-500" />
+        </x-slot>
 
-        {{-- Email --}}
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input
-                id="email"
-                name="email"
-                type="email"
-                class="block mt-1 w-full"
-                :value="old('email')"
-                required
-                autofocus
-                autocomplete="username"
-            />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        @if (session('status'))
+            <div class="mb-4 font-medium text-sm text-green-600">
+                {{ session('status') }}
+            </div>
+        @endif
 
-        {{-- Пароль --}}
-        <div>
-            <x-input-label for="password" :value="__('Пароль')" />
-            <x-text-input
-                id="password"
-                name="password"
-                type="password"
-                class="block mt-1 w-full"
-                required
-                autocomplete="current-password"
-            />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        <x-auth-validation-errors class="mb-4" :errors="$errors" />
 
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Запомнить меня') }}</span>
-            </label>
-        </div>
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
 
-        <div class="flex items-center justify-end">
-            <x-primary-button class="ms-4">
-                {{ __('Войти') }}
-            </x-primary-button>
+            <div>
+                <x-label for="email" :value="__('Email')" />
+                <x-input id="email" class="block mt-1 w-full" type="email" name="email"
+                         :value="old('email')" required autofocus autocomplete="username" />
+            </div>
 
-            <input type="submit" value="Войти"
-                   style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">
-        </div>
-    </form>
+            <div class="mt-4">
+                <x-label for="password" :value="__('Пароль')" />
+                <x-input id="password" class="block mt-1 w-full" type="password"
+                         name="password" required autocomplete="current-password" />
+            </div>
+
+            <div class="flex items-center justify-end mt-4">
+                <x-button>
+                    {{ __('Войти') }}
+                </x-button>
+            </div>
+        </form>
+    </x-auth-card>
 </x-guest-layout>
