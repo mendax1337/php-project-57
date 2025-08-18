@@ -1,6 +1,7 @@
 @props(['task' => null, 'statuses', 'users'])
 
 @php
+    /** @var \App\Models\Task|null $t */
     $t = $task;
 @endphp
 
@@ -8,12 +9,12 @@
     {{-- name --}}
     <div>
         <x-input-label for="name" :value="__('Name')" />
-        <x-text-input
+        <input
             id="name"
             name="name"
             type="text"
             class="mt-1 block w-full"
-            :value="old('name', optional($t)->name)"
+            value="{{ old('name', optional($t)->name) }}"
             required
             autofocus
             autocomplete="name"
