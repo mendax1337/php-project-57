@@ -3,19 +3,21 @@
 @php
     /** @var \App\Models\Task|null $t */
     $t = $task;
-    $selectedLabels = collect(old('labels', optional($t)->labels?->pluck('id')->all() ?? []))->map(fn($v) => (string) $v)->all();
+    $selectedLabels = collect(old('labels', optional($t)->labels?->pluck('id')->all() ?? []))
+        ->map(fn($v) => (string) $v)
+        ->all();
 @endphp
 
 <div class="space-y-6">
     {{-- Название --}}
     <div>
         <x-input-label for="name" :value="__('Название')" />
-        <x-text-input
+        <input
             id="name"
             name="name"
             type="text"
-            class="mt-1 block w-full"
-            :value="old('name', optional($t)->name)"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+            value="{{ old('name', optional($t)->name) }}"
             required
             autofocus
             autocomplete="name"
