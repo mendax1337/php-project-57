@@ -14,7 +14,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\QueryBuilder as SpatieQueryBuilder;
 
 class TaskController extends Controller implements HasMiddleware
 {
@@ -29,21 +29,23 @@ class TaskController extends Controller implements HasMiddleware
 
     public function index(Request $request): View
     {
-        // Списки для фильтров
         $statuses = TaskStatus::query()->orderBy('id')->pluck('name', 'id');
         $users    = User::query()->orderBy('name')->pluck('name', 'id');
 
-        // Фильтрация через spatie/laravel-query-builder
-        $tasks = QueryBuilder::for(Task::class)
-            ->with(['status', 'creator', 'assignee'])
-            ->allowedFilters([
-                AllowedFilter::exact('status_id'),
-                AllowedFilter::exact('created_by_id'),
-                AllowedFilter::exact('assigned_to_id'),
-            ])
-            ->orderBy('id')                 // как в демке — по возрастанию
-            ->paginate(15)                  // 15 на страницу
-            ->appends($request->query());   // сохранить выбранные фильтры при пагинации
+        /** @var SpatieQueryBuilder<\App\Models\Task> $qb */
+        $qb = SpatieQueryBuilder::for(Task::class);
+
+        $qb->allowedFilters([
+            AllowedFilter::exact('status_id'),
+            AllowedFilter::exact('created_by_id'),
+            AllowedFilter::exact('assigned_to_id'),
+        ]);
+
+        /** @phpstan-ignore-next-line */
+        $qb->with(['status', 'creator', 'assignee'])
+            ->orderBy('id');
+
+        $tasks = $qb->paginate(15)->appends($request->query());
 
         return view('tasks.index', compact('tasks', 'statuses', 'users'));
     }
