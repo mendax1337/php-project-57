@@ -1,35 +1,41 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Редактировать статус
+            {{ __('Изменение статуса') }}
         </h2>
     </x-slot>
 
-    <main class="mx-auto max-w-2xl p-6 lg:p-8">
-        @include('flash::message')
+    <div class="py-6">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <form method="POST" action="{{ route('task_statuses.update', $task_status) }}">
+                    @csrf
+                    @method('patch')
 
-        <form method="POST" action="{{ route('task_statuses.update', $status) }}" class="space-y-6">
-            @csrf
-            @method('PATCH')
+                    <div>
+                        <x-input-label for="name" :value="__('Имя')" />
+                        <x-text-input
+                            id="name"
+                            name="name"
+                            type="text"
+                            class="mt-1 block w-full"
+                            :value="old('name', $task_status->name)"
+                            required
+                            autocomplete="off"
+                        />
+                        <x-input-error class="mt-2" :messages="$errors->get('name')" />
+                    </div>
 
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">Имя</label>
-                <input type="text" name="name" id="name" value="{{ old('name', $status->name) }}"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                       required minlength="1" maxlength="255">
-                @error('name')
-                <div class="text-sm text-red-600 mt-1">{{ $message }}</div>
-                @enderror
+                    <div class="mt-6 flex items-center gap-3">
+                        <x-primary-button>{{ __('Сохранить') }}</x-primary-button>
+
+                        <a href="{{ route('task_statuses.index') }}"
+                           class="text-gray-600 hover:text-gray-900">
+                            {{ __('Отмена') }}
+                        </a>
+                    </div>
+                </form>
             </div>
-
-            <div class="flex items-center gap-3">
-                <button type="submit" class="px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                    Сохранить
-                </button>
-                <a href="{{ route('task_statuses.index') }}" class="px-4 py-2 rounded-md border">
-                    Отмена
-                </a>
-            </div>
-        </form>
-    </main>
+        </div>
+    </div>
 </x-app-layout>
