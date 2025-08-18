@@ -1,52 +1,68 @@
-<x-guest-layout>
-    <x-auth-card>
-        <x-slot name="logo">
-            <x-application-logo class="w-16 h-16 fill-current text-gray-500" />
-        </x-slot>
+{{-- Страница регистрации --}}
+    <!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Регистрация — Менеджер задач</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray-100">
+<div class="min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-semibold text-center mb-6">Менеджер задач</h1>
 
-        <!-- Validation Errors -->
-        <x-auth-validation-errors class="mb-4" :errors="$errors" />
+        {{-- Ошибки валидации --}}
+        @if ($errors->any())
+            <div class="mb-4 rounded border border-red-300 bg-red-50 text-red-700 p-3">
+                <ul class="list-disc ms-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-        <form method="POST" action="{{ route('register') }}">
+        <form method="POST" action="{{ route('register') }}" class="space-y-4">
             @csrf
 
-            <!-- Name -->
             <div>
-                <x-label for="name" :value="__('Имя')" />
-                <x-input id="name" class="block mt-1 w-full" type="text" name="name"
-                         :value="old('name')" required autofocus autocomplete="name" />
+                <label for="name" class="block text-sm font-medium text-gray-700">Имя</label>
+                <input id="name" name="name" type="text" value="{{ old('name') }}" required autofocus autocomplete="name"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
-            <!-- Email -->
-            <div class="mt-4">
-                <x-label for="email" :value="__('Email')" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email"
-                         :value="old('email')" required autocomplete="email" />
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
-            <!-- Password -->
-            <div class="mt-4">
-                <x-label for="password" :value="__('Пароль')" />
-                <x-input id="password" class="block mt-1 w-full" type="password"
-                         name="password" required autocomplete="new-password" />
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Пароль</label>
+                <input id="password" name="password" type="password" required autocomplete="new-password"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
-            <!-- Confirm Password -->
-            <div class="mt-4">
-                <x-label for="password_confirmation" :value="__('Подтверждение')" />
-                <x-input id="password_confirmation" class="block mt-1 w-full" type="password"
-                         name="password_confirmation" required autocomplete="new-password" />
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Подтверждение</label>
+                <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">
-                    {{ __('Уже зарегистрированы?') }}
-                </a>
-
-                <x-button class="ml-4">
-                    {{ __('Зарегистрировать') }}
-                </x-button>
+            <div class="pt-2">
+                <button type="submit"
+                        class="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Зарегистрировать
+                </button>
             </div>
         </form>
-    </x-auth-card>
-</x-guest-layout>
+
+        <div class="mt-4 text-center text-sm">
+            Уже зарегистрированы?
+            <a class="text-blue-600 hover:underline" href="{{ route('login') }}">Войти</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

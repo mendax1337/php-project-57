@@ -1,37 +1,63 @@
-<x-guest-layout>
-    <x-auth-card>
-        <x-slot name="logo">
-            <x-application-logo class="w-16 h-16 fill-current text-gray-500" />
-        </x-slot>
+{{-- Страница входа --}}
+    <!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Вход — Менеджер задач</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray-100">
+<div class="min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-semibold text-center mb-6">Менеджер задач</h1>
 
+        {{-- Сообщение об успехе / статусе (если есть) --}}
         @if (session('status'))
-            <div class="mb-4 font-medium text-sm text-green-600">
+            <div class="mb-4 text-sm text-green-600">
                 {{ session('status') }}
             </div>
         @endif
 
-        <x-auth-validation-errors class="mb-4" :errors="$errors" />
+        {{-- Ошибки валидации --}}
+        @if ($errors->any())
+            <div class="mb-4 rounded border border-red-300 bg-red-50 text-red-700 p-3">
+                <ul class="list-disc ms-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 
             <div>
-                <x-label for="email" :value="__('Email')" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email"
-                         :value="old('email')" required autofocus autocomplete="username" />
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input id="email" name="email" type="email" value="{{ old('email') }}" required
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
-            <div class="mt-4">
-                <x-label for="password" :value="__('Пароль')" />
-                <x-input id="password" class="block mt-1 w-full" type="password"
-                         name="password" required autocomplete="current-password" />
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Пароль</label>
+                <input id="password" name="password" type="password" required autocomplete="current-password"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <x-button>
-                    {{ __('Войти') }}
-                </x-button>
+            <div class="pt-2">
+                <button type="submit"
+                        class="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Войти
+                </button>
             </div>
         </form>
-    </x-auth-card>
-</x-guest-layout>
+
+        <div class="mt-4 text-center text-sm">
+            Нет аккаунта?
+            <a class="text-blue-600 hover:underline" href="{{ route('register') }}">Зарегистрироваться</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
