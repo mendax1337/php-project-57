@@ -12,7 +12,7 @@
             @auth
                 <div class="mb-4">
                     <a href="{{ route('tasks.create') }}" class="px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 transition">
-                        {{ __('Create Task') }}
+                        {{ __('Новая задача') }}
                     </a>
                 </div>
             @endauth
