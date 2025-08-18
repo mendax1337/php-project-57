@@ -2,7 +2,7 @@
 [![Actions Status](https://github.com/mendax1337/php-project-57/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/mendax1337/php-project-57/actions)
 [![CI](https://github.com/mendax1337/php-project-57/actions/workflows/ci.yml/badge.svg)](https://github.com/mendax1337/php-project-57/actions/workflows/ci.yml)
 
-# Task Manager
+ Task Manager
 
 ## About the project
 
@@ -16,9 +16,9 @@ Registration and authentication are required to use the system.
 - Labels (many-to-many relation with tasks)
 - Task filtering (by status, creator, assignee, labels) with pagination
 - Authentication & registration (Laravel Breeze)
-- Deletion protection:
-    - Statuses cannot be deleted if they are used in tasks
-    - Labels cannot be deleted if they are attached to tasks
+- Deletion protection:  
+  - Statuses cannot be deleted if they are used in tasks  
+  - Labels cannot be deleted if they are attached to tasks  
 
 ## Requirements
 
@@ -37,8 +37,67 @@ Registration and authentication are required to use the system.
 
 ```bash
 git clone git@github.com:mendax1337/php-project-57.git task-manager
-cd task-manager```
+cd task-manager
+```
 
-2. 
+Prepare the .env file:
 
-#### Result [Ссылка на проект](https://task-manager-kpx5.onrender.com)
+```bash
+make env
+# or: cp .env.example .env
+```
+
+By default, SQLite is used: database/database.sqlite.
+If the file doesn’t exist, create it manually:
+
+```bash
+touch database/database.sqlite
+```
+
+Install PHP dependencies:
+
+```bash
+make install
+```
+
+Generate the application key:
+
+```bash
+make key
+```
+
+Run migrations and seeders:
+
+```bash
+php artisan migrate --seed
+```
+
+Build the frontend (Vite):
+```bash
+npm install && npm run build
+```
+
+Start the development server:
+
+```bash
+make start
+```
+
+
+Open in browser:
+
+http://localhost:8000
+
+Run tests:
+```bash
+make test
+```
+
+Database configuration
+
+By default the app runs with DB_CONNECTION=sqlite.
+To use PostgreSQL or MySQL, set the proper values in .env (DB_CONNECTION=pgsql|mysql, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD) and run migrations again.
+
+The project is deployed on Render:
+
+#### Result [Link on project](https://task-manager-kpx5.onrender.com)
