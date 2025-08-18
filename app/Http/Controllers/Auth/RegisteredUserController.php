@@ -48,6 +48,6 @@ class RegisteredUserController extends Controller
         // Флеш-сообщение об успешной регистрации
         flash('Вы успешно зарегистрированы!')->success();
 
-        return redirect(route('/', absolute: false));
+        return redirect(route('home', absolute: false));
     }
 }
