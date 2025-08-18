@@ -7,12 +7,14 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\User;
-use App\Models\Label;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class TaskController extends Controller implements HasMiddleware
 {
@@ -25,20 +27,30 @@ class TaskController extends Controller implements HasMiddleware
         ];
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $tasks = Task::query()
-            ->with(['status', 'creator', 'assignee', 'labels'])
-            ->latest('id')
-            ->paginate(20);
+        // Списки для фильтров
+        $statuses = TaskStatus::query()->orderBy('id')->pluck('name', 'id');
+        $users    = User::query()->orderBy('name')->pluck('name', 'id');
 
-        return view('tasks.index', compact('tasks'));
+        // Фильтрация через spatie/laravel-query-builder
+        $tasks = QueryBuilder::for(Task::class)
+            ->with(['status', 'creator', 'assignee'])
+            ->allowedFilters([
+                AllowedFilter::exact('status_id'),
+                AllowedFilter::exact('created_by_id'),
+                AllowedFilter::exact('assigned_to_id'),
+            ])
+            ->orderBy('id')                 // как в демке — по возрастанию
+            ->paginate(15)                  // 15 на страницу
+            ->appends($request->query());   // сохранить выбранные фильтры при пагинации
+
+        return view('tasks.index', compact('tasks', 'statuses', 'users'));
     }
 
     public function show(Task $task): View
     {
         $task->load(['status', 'creator', 'assignee', 'labels']);
-
         return view('tasks.show', compact('task'));
     }
 
@@ -48,21 +60,17 @@ class TaskController extends Controller implements HasMiddleware
             'task'     => new Task(),
             'statuses' => TaskStatus::query()->pluck('name', 'id'),
             'users'    => User::query()->pluck('name', 'id'),
-            'labels'   => Label::query()->pluck('name', 'id'),
+            'labels'   => \App\Models\Label::query()->pluck('name', 'id'),
         ]);
     }
 
     public function store(StoreTaskRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
+        $data = $request->validated();
+        $data['created_by_id'] = (int) auth()->id();
 
-        // создаём задачу и фиксируем автора
-        $task = new Task($validated);
-        $task->created_by_id = (int) auth()->id();
-        $task->save();
-
-        // метки (может не быть ни одной)
-        $task->labels()->sync((array) $request->input('labels', []));
+        $task = Task::create($data);
+        $task->labels()->sync($request->input('labels', []));
 
         return redirect()->route('tasks.index')->with('success', 'Task created');
     }
@@ -70,21 +78,19 @@ class TaskController extends Controller implements HasMiddleware
     public function edit(Task $task): View
     {
         return view('tasks.edit', [
-            'task'     => $task->load('labels'),
+            'task'     => $task,
             'statuses' => TaskStatus::query()->pluck('name', 'id'),
             'users'    => User::query()->pluck('name', 'id'),
-            'labels'   => Label::query()->pluck('name', 'id'),
+            'labels'   => \App\Models\Label::query()->pluck('name', 'id'),
         ]);
     }
 
     public function update(UpdateTaskRequest $request, Task $task): RedirectResponse
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 
-        $task->update($validated);
-
-        // обновляем связи меток
-        $task->labels()->sync((array) $request->input('labels', []));
+        $task->update($data);
+        $task->labels()->sync($request->input('labels', []));
 
         return redirect()->route('tasks.index')->with('success', 'Task updated');
     }
