@@ -13,7 +13,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\LabelController;
+use App\Http\Controllers\LabelsController;
 
 Route::get('/', function () {
     return view('home');
@@ -87,4 +87,4 @@ Route::middleware('auth')->group(function () {
 Route::resource('tasks', TaskController::class);
 
 // labels: index — публичный, остальное под auth (см. LabelController::middleware)
-Route::resource('labels', LabelController::class)->except(['show']);
+Route::resource('labels', LabelsController::class)->except(['show']);

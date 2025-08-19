@@ -10,7 +10,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class LabelController extends Controller implements HasMiddleware
+class LabelsController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
