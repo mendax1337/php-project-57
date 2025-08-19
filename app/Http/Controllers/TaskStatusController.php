@@ -11,30 +11,29 @@ class TaskStatusController extends Controller
 {
     public function index(): View
     {
-        $statuses = TaskStatus::query()
-            ->orderBy('id')
-            ->paginate(20);
+        $task_statuses = TaskStatus::query()->orderBy('id')->paginate(50);
 
-        return view('task_statuses.index', compact('statuses'));
+        return view('task_statuses.index', compact('task_statuses'));
     }
 
     public function create(): View
     {
-        return view('task_statuses.create', [
-            'task_status' => new TaskStatus(),
-        ]);
+        return view('task_statuses.create');
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:task_statuses,name'],
+        ], [
+            'name.required' => 'Это обязательное поле',
+            'name.unique'   => 'Статус с таким именем уже существует',
         ]);
 
-        TaskStatus::create($data);
+        TaskStatus::create($validated);
 
         return redirect()->route('task_statuses.index')
-            ->with('success', 'Статус создан');
+            ->with('success', 'Статус успешно создан');
     }
 
     public function edit(TaskStatus $task_status): View
@@ -44,14 +43,20 @@ class TaskStatusController extends Controller
 
     public function update(Request $request, TaskStatus $task_status): RedirectResponse
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:task_statuses,name,' . $task_status->id],
+        $validated = $request->validate([
+            'name' => [
+                'required', 'string', 'max:255',
+                'unique:task_statuses,name,' . $task_status->id,
+            ],
+        ], [
+            'name.required' => 'Это обязательное поле',
+            'name.unique'   => 'Статус с таким именем уже существует',
         ]);
 
-        $task_status->update($data);
+        $task_status->update($validated);
 
         return redirect()->route('task_statuses.index')
-            ->with('success', 'Статус обновлён');
+            ->with('success', 'Статус успешно изменён');
     }
 
     public function destroy(TaskStatus $task_status): RedirectResponse
@@ -64,6 +69,6 @@ class TaskStatusController extends Controller
         $task_status->delete();
 
         return redirect()->route('task_statuses.index')
-            ->with('success', 'Статус удалён');
+            ->with('success', 'Статус успешно удалён');
     }
 }

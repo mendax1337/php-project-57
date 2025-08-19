@@ -7,7 +7,7 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\User;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\Label;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -17,10 +17,9 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class TaskController extends Controller implements HasMiddleware
 {
-    use AuthorizesRequests;
-
     public static function middleware(): array
     {
+        // index/show — публичные; остальное под auth
         return [
             new Middleware('auth', except: ['index', 'show']),
         ];
@@ -28,38 +27,29 @@ class TaskController extends Controller implements HasMiddleware
 
     public function index(): View
     {
-        /** @var QueryBuilder<Task> $qb */
-        $qb = QueryBuilder::for(Task::class)
-            ->with(['status', 'creator', 'assignee'])
+        $tasks = QueryBuilder::for(Task::query()->with(['status', 'creator', 'assignee']))
             ->allowedFilters([
                 AllowedFilter::exact('status_id'),
                 AllowedFilter::exact('created_by_id'),
                 AllowedFilter::exact('assigned_to_id'),
             ])
-            ->latest('id');
+            ->latest('id')
+            ->paginate(50)
+            ->withQueryString();
 
-        $tasks = $qb->paginate(15)->withQueryString();
-
-        $statuses = TaskStatus::query()->orderBy('id')->pluck('name', 'id');
-        $users    = User::query()->orderBy('id')->pluck('name', 'id');
-
-        return view('tasks.index', compact('tasks', 'statuses', 'users'));
-    }
-
-    public function show(Task $task): View
-    {
-        $task->load(['status', 'creator', 'assignee', 'labels']);
-
-        return view('tasks.show', compact('task'));
+        return view('tasks.index', [
+            'tasks'   => $tasks,
+            'statuses'=> TaskStatus::pluck('name', 'id'),
+            'users'   => User::pluck('name', 'id'),
+        ]);
     }
 
     public function create(): View
     {
         return view('tasks.create', [
-            'task'     => new Task(),
-            'statuses' => TaskStatus::query()->pluck('name', 'id'),
-            'users'    => User::query()->pluck('name', 'id'),
-            'labels'   => \App\Models\Label::query()->pluck('name', 'id'),
+            'statuses' => TaskStatus::pluck('name', 'id'),
+            'users'    => User::pluck('name', 'id'),
+            'labels'   => Label::pluck('name', 'id'),
         ]);
     }
 
@@ -71,27 +61,30 @@ class TaskController extends Controller implements HasMiddleware
         $task = Task::create($data);
         $task->labels()->sync($request->input('labels', []));
 
-        return redirect()->route('tasks.index')->with('success', 'Task created');
+        return redirect()->route('tasks.index')->with('success', 'Задача успешно создана');
+    }
+
+    public function show(Task $task): View
+    {
+        return view('tasks.show', ['task' => $task->load(['status', 'creator', 'assignee', 'labels'])]);
     }
 
     public function edit(Task $task): View
     {
         return view('tasks.edit', [
             'task'     => $task->load('labels'),
-            'statuses' => TaskStatus::query()->pluck('name', 'id'),
-            'users'    => User::query()->pluck('name', 'id'),
-            'labels'   => \App\Models\Label::query()->pluck('name', 'id'),
+            'statuses' => TaskStatus::pluck('name', 'id'),
+            'users'    => User::pluck('name', 'id'),
+            'labels'   => Label::pluck('name', 'id'),
         ]);
     }
 
     public function update(UpdateTaskRequest $request, Task $task): RedirectResponse
     {
-        $data = $request->validated();
-
-        $task->update($data);
+        $task->update($request->validated());
         $task->labels()->sync($request->input('labels', []));
 
-        return redirect()->route('tasks.index')->with('success', 'Task updated');
+        return redirect()->route('tasks.index')->with('success', 'Задача успешно изменена');
     }
 
     public function destroy(Task $task): RedirectResponse
@@ -100,6 +93,6 @@ class TaskController extends Controller implements HasMiddleware
 
         $task->delete();
 
-        return redirect()->route('tasks.index')->with('success', 'Task deleted');
+        return redirect()->route('tasks.index')->with('success', 'Задача успешно удалена');
     }
 }
