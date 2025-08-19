@@ -12,7 +12,6 @@ class TaskStatusController extends Controller
     public function index(): View
     {
         $task_statuses = TaskStatus::query()->orderBy('id')->paginate(50);
-
         return view('task_statuses.index', compact('task_statuses'));
     }
 
@@ -44,10 +43,7 @@ class TaskStatusController extends Controller
     public function update(Request $request, TaskStatus $task_status): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => [
-                'required', 'string', 'max:255',
-                'unique:task_statuses,name,' . $task_status->id,
-            ],
+            'name' => ['required', 'string', 'max:255', 'unique:task_statuses,name,' . $task_status->id],
         ], [
             'name.required' => 'Это обязательное поле',
             'name.unique'   => 'Статус с таким именем уже существует',
@@ -62,13 +58,11 @@ class TaskStatusController extends Controller
     public function destroy(TaskStatus $task_status): RedirectResponse
     {
         if ($task_status->tasks()->exists()) {
-            return redirect()->route('task_statuses.index')
-                ->with('error', 'Не удалось удалить статус');
+            return redirect()->route('task_statuses.index')->with('error', 'Не удалось удалить статус');
         }
 
         $task_status->delete();
 
-        return redirect()->route('task_statuses.index')
-            ->with('success', 'Статус успешно удалён');
+        return redirect()->route('task_statuses.index')->with('success', 'Статус успешно удалён');
     }
 }

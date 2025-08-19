@@ -4,7 +4,18 @@
     </x-slot>
 
     <main class="mx-auto max-w-7xl p-6 lg:p-8">
-        @include('flash::message')
+
+        {{-- flash messages --}}
+        @if (session('success'))
+            <div class="mb-4 rounded-lg bg-green-50 p-3 text-green-800">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="mb-4 rounded-lg bg-red-50 p-3 text-red-800">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <div class="bg-white shadow sm:rounded-lg p-6">
             <form method="POST" action="{{ route('task_statuses.update', $task_status) }}">

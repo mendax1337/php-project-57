@@ -9,38 +9,40 @@ use App\Models\TaskStatus;
 use App\Models\User;
 use App\Models\Label;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
 
-class TaskController extends Controller implements HasMiddleware
+class TaskController extends Controller
 {
-    public static function middleware(): array
+    public function __construct()
     {
-        // index/show — публичные; остальное под auth
-        return [
-            new Middleware('auth', except: ['index', 'show']),
-        ];
+        // index/show — публичные; остальные требуют логин
+        $this->middleware('auth')->except(['index', 'show']);
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $tasks = QueryBuilder::for(Task::query()->with(['status', 'creator', 'assignee']))
-            ->allowedFilters([
-                AllowedFilter::exact('status_id'),
-                AllowedFilter::exact('created_by_id'),
-                AllowedFilter::exact('assigned_to_id'),
-            ])
-            ->latest('id')
-            ->paginate(50)
-            ->withQueryString();
+        $q = Task::query()
+            ->with(['status', 'creator', 'assignee', 'labels'])
+            ->latest('id');
+
+        // простые фильтры, как ждут тесты Хекслета
+        if ($request->filled('status_id')) {
+            $q->where('status_id', (int) $request->input('status_id'));
+        }
+        if ($request->filled('created_by_id')) {
+            $q->where('created_by_id', (int) $request->input('created_by_id'));
+        }
+        if ($request->filled('assigned_to_id')) {
+            $q->where('assigned_to_id', (int) $request->input('assigned_to_id'));
+        }
+
+        $tasks = $q->paginate(50)->withQueryString();
 
         return view('tasks.index', [
-            'tasks'   => $tasks,
-            'statuses'=> TaskStatus::pluck('name', 'id'),
-            'users'   => User::pluck('name', 'id'),
+            'tasks'    => $tasks,
+            'statuses' => TaskStatus::pluck('name', 'id'),
+            'users'    => User::pluck('name', 'id'),
         ]);
     }
 
