@@ -3,27 +3,48 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreLabelRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     */
     public function rules(): array
     {
         return [
-            'name'        => ['required', 'string', 'max:255', 'unique:labels,name'],
-            'description' => ['nullable', 'string'],
+            'name' => ['required', 'max:255', Rule::unique('labels', 'name')->ignore($this->label)],
+            'description' => ['nullable', 'max:500'],
         ];
     }
 
+    /**
+     * Get the error messages for the defined validation rules.
+     */
     public function messages(): array
     {
         return [
-            'name.required' => 'Это обязательное поле',
-            'name.unique'   => 'Метка с таким именем уже существует',
+            'name.unique' => __('validation.unique_name'),
+            'name.max' => __('validation.max.string_f'),
+            'description.max' => __('validation.max.string_n'),
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     */
+    public function attributes(): array
+    {
+        return [
+            'name' => __('validation.attributes.label'),
         ];
     }
 }

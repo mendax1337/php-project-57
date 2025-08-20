@@ -1,90 +1,30 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\LabelController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\LabelsController;
+use App\Http\Controllers\TaskStatusController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
 
 Route::get('/', function () {
-    return view('home');
+    return view('welcome');
 })->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+require __DIR__ . '/auth.php';
 
-Route::get('/task_statuses', [TaskStatusController::class, 'index'])
-    ->name('task_statuses.index');
-
-Route::middleware('auth')->group(function () {
-    // Профиль
-    Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
-        Route::patch('/', [ProfileController::class, 'update'])->name('update');
-        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
-    });
-
-    // CRUD статусов
-    Route::get('/task_statuses/create', [TaskStatusController::class, 'create'])
-        ->name('task_statuses.create');
-    Route::post('/task_statuses', [TaskStatusController::class, 'store'])
-        ->name('task_statuses.store');
-
-    Route::get('/task_statuses/{task_status}/edit', [TaskStatusController::class, 'edit'])
-        ->name('task_statuses.edit');
-    Route::patch('/task_statuses/{task_status}', [TaskStatusController::class, 'update'])
-        ->name('task_statuses.update');
-
-    Route::delete('/task_statuses/{task_status}', [TaskStatusController::class, 'destroy'])
-        ->name('task_statuses.destroy');
-});
-
-Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
-
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
-
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
-});
-
-Route::middleware('auth')->group(function () {
-    Route::get('verify-email', EmailVerificationPromptController::class)->name('verification.notice');
-
-    // Без 'signed', чтобы стабильно проходили тесты
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['auth', 'throttle:6,1'])
-        ->name('verification.verify');
-
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
-
-    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
-
-    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
-
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-});
-
-// tasks: index/show — публичные, остальное под auth (см. TaskController::middleware)
-Route::resource('tasks', TaskController::class);
-
-// labels: index — публичный, остальное под auth (см. LabelController::middleware)
-Route::resource('labels', LabelsController::class)->except(['show']);
+Route::resources([
+    'task_statuses' => TaskStatusController::class,
+    'tasks' => TaskController::class,
+    'labels' => LabelController::class,
+]);

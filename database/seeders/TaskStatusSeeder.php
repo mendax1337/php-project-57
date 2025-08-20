@@ -7,12 +7,21 @@ use Illuminate\Database\Seeder;
 
 class TaskStatusSeeder extends Seeder
 {
+    /**
+     * Seed the application's database.
+     */
     public function run(): void
     {
-        $names = ['новый', 'в работе', 'на тестировании', 'завершен'];
+        $seeders = [
+            ['name' => 'новый'],
+            ['name' => 'в работе'],
+            ['name' => 'на тестировании'],
+            ['name' => 'завершен'],
+        ];
 
-        foreach ($names as $name) {
-            TaskStatus::firstOrCreate(['name' => $name]);
-        }
+        TaskStatus::factory()
+            ->count(count($seeders))
+            ->sequence(...$seeders)
+            ->create();
     }
 }

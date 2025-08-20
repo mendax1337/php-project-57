@@ -1,18 +1,20 @@
-<!doctype html>
-<html lang="ru">
-<head>
-    <meta charset="utf-8">
-    <title>Менеджер задач</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
-<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <h1 class="text-5xl font-semibold mb-4">Привет от Хекслета!</h1>
-    <p class="text-lg text-gray-300 mb-8">Это простой менеджер задач на Laravel</p>
-    <a href="https://hexlet.io" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700">
-        Нажми меня
-    </a>
-</main>
-</body>
-</html>
+@extends('layouts.app')
+
+@section('content')
+    <div class="mr-auto place-self-center lg:col-span-7">
+        <h1
+            class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-6xl dark:text-white">
+            {{ __('welcome.hello') }}
+        </h1>
+        <p class="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">
+            {{ __('welcome.description') }}
+        </p>
+        <div class="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
+            <a href="https://ru.hexlet.io/"
+                class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                target="_blank">
+                {{ __('welcome.click_me') }}
+            </a>
+        </div>
+    </div>
+@endsection

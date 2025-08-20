@@ -3,98 +3,102 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskRequest;
-use App\Http\Requests\UpdateTaskRequest;
+use App\Models\Label;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\User;
-use App\Models\Label;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
     public function __construct()
     {
-        // index/show — публичные; остальные требуют логин
-        $this->middleware('auth')->except(['index', 'show']);
+        $this->authorizeResource(Task::class);
     }
 
-    public function index(Request $request): View
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
     {
-        $q = Task::query()
-            ->with(['status', 'creator', 'assignee', 'labels'])
-            ->latest('id');
-
-        // простые фильтры, как ждут тесты Хекслета
-        if ($request->filled('status_id')) {
-            $q->where('status_id', (int) $request->input('status_id'));
-        }
-        if ($request->filled('created_by_id')) {
-            $q->where('created_by_id', (int) $request->input('created_by_id'));
-        }
-        if ($request->filled('assigned_to_id')) {
-            $q->where('assigned_to_id', (int) $request->input('assigned_to_id'));
-        }
-
-        $tasks = $q->paginate(50)->withQueryString();
-
-        return view('tasks.index', [
-            'tasks'    => $tasks,
-            'statuses' => TaskStatus::pluck('name', 'id'),
-            'users'    => User::pluck('name', 'id'),
-        ]);
+        $filter = $request->input('filter');
+        $tasks = Task::filter()->orderBy('id')->paginate();
+        $taskStatusesById = TaskStatus::pluck('name', 'id');
+        $usersById = User::pluck('name', 'id');
+        return view('task.index', compact('tasks', 'taskStatusesById', 'usersById', 'filter'));
     }
 
-    public function create(): View
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
     {
-        return view('tasks.create', [
-            'statuses' => TaskStatus::pluck('name', 'id'),
-            'users'    => User::pluck('name', 'id'),
-            'labels'   => Label::pluck('name', 'id'),
-        ]);
+        $taskStatuses = TaskStatus::pluck('name', 'id');
+        $users = User::pluck('name', 'id');
+        $labels = Label::pluck('name', 'id');
+        return view('task.create', compact('taskStatuses', 'users', 'labels'));
     }
 
-    public function store(StoreTaskRequest $request): RedirectResponse
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreTaskRequest $request)
     {
         $data = $request->validated();
-        $data['created_by_id'] = (int) auth()->id();
+        $task = Auth::user()->createdTasks()->make($data);
+        $task->save();
+        $labels = Arr::whereNotNull($request->input('labels') ?? []);
+        $task->labels()->sync($labels);
 
-        $task = Task::create($data);
-        $task->labels()->sync($request->input('labels', []));
+        flash(__('flash.tasks.store.success'))->success();
 
-        return redirect()->route('tasks.index')->with('success', 'Задача успешно создана');
+        return redirect()->route('tasks.index');
     }
 
-    public function show(Task $task): View
+    /**
+     * Display the specified resource.
+     */
+    public function show(Task $task)
     {
-        return view('tasks.show', ['task' => $task->load(['status', 'creator', 'assignee', 'labels'])]);
+        return view('task.show', compact('task'));
     }
 
-    public function edit(Task $task): View
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Task $task)
     {
-        return view('tasks.edit', [
-            'task'     => $task->load('labels'),
-            'statuses' => TaskStatus::pluck('name', 'id'),
-            'users'    => User::pluck('name', 'id'),
-            'labels'   => Label::pluck('name', 'id'),
-        ]);
+        $taskStatuses = TaskStatus::pluck('name', 'id');
+        $users = User::pluck('name', 'id');
+        $labels = Label::pluck('name', 'id');
+        return view('task.edit', compact('task', 'taskStatuses', 'users', 'labels'));
     }
 
-    public function update(UpdateTaskRequest $request, Task $task): RedirectResponse
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(StoreTaskRequest $request, Task $task)
     {
-        $task->update($request->validated());
-        $task->labels()->sync($request->input('labels', []));
+        $data = $request->validated();
+        $task->fill($data);
+        $task->save();
+        $labels = Arr::whereNotNull($request->input('labels') ?? []);
+        $task->labels()->sync($labels);
 
-        return redirect()->route('tasks.index')->with('success', 'Задача успешно изменена');
+        flash(__('flash.tasks.update.success'))->success();
+
+        return redirect()->route('tasks.index');
     }
 
-    public function destroy(Task $task): RedirectResponse
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Task $task)
     {
-        $this->authorize('delete', $task);
-
         $task->delete();
-
-        return redirect()->route('tasks.index')->with('success', 'Задача успешно удалена');
+        flash(__('flash.tasks.delete.success'))->success();
+        return redirect()->route('tasks.index');
     }
 }

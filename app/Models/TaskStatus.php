@@ -4,20 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TaskStatus extends Model
 {
-    /** @use HasFactory<\Database\Factories\TaskStatusFactory> */
     use HasFactory;
 
-    protected $fillable = ['name'];
+    /**
+     * Properties.
+     */
+    protected $fillable = [
+        'name',
+    ];
 
     /**
-     * @phpstan-return HasMany<Task, static>
+     * Get all tasks with the status.
      */
-    public function tasks(): HasMany
+    public function tasks()
     {
-        return $this->hasMany(\App\Models\Task::class, 'status_id');
+        return $this->hasMany(Task::class, 'status_id');
     }
 }

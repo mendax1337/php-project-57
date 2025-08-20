@@ -1,52 +1,51 @@
 name: CI
-on:
-  push:
-  pull_request:
+on: push
 
 jobs:
-  build-test-lint:
+  build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+
     steps:
       - uses: actions/checkout@v4
-      - name: Setup PHP
+
+      - name: php
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, intl, pdo, sqlite, pgsql, pdo_sqlite, pdo_pgsql, zip
-          coverage: none
-          tools: composer:v2, phpstan, phpcs
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: env
+        run: make env
+
+      - name: composer
+        run: make install
+
+      - name: key
+        run: make key
+
+      - name: db
+        run: make db
+
+      - name: frontend
+        run: make frontend
+
+      - name: validate
+        run: make validate
+
+      - name: linter
+        run: make lint
+
+      - name: Upload coverage to Qlty
+        uses: qltysh/qlty-action/coverage@v2
         with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Cache Composer
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install PHP deps
-        run: composer install --no-interaction --no-progress --prefer-dist
-
-      - name: Install Node deps
-        run: npm ci
-
-      - name: Build assets
-        run: npm run build
-
-      - name: Lint (PHPCS)
-        run: phpcs
-
-      - name: Static analysis (PHPStan)
-        run: phpstan analyse --no-progress
-
-      - name: PHPUnit
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: ':memory:'
-          APP_KEY: base64:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=
-        run: php artisan test --testsuite=Unit --colors=always
+          token: {{secrets.QLTY_COVERAGE_TOKEN}}
+          files: target/lcov.info

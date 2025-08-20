@@ -2,20 +2,18 @@
 
 namespace App\Models;
 
-use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
-/**
- * @phpstan-use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\TaskFactory>
- */
 class Task extends Model
 {
     use HasFactory;
 
+    /**
+     * Properties.
+     */
     protected $fillable = [
         'name',
         'description',
@@ -24,30 +22,47 @@ class Task extends Model
         'assigned_to_id',
     ];
 
-    /** @return BelongsTo<TaskStatus, static> */
-    public function status(): BelongsTo
+    /**
+     * Get status of the task.
+     */
+    public function status()
     {
         return $this->belongsTo(TaskStatus::class);
     }
 
-    /** @return BelongsTo<User, static> */
-    public function creator(): BelongsTo
+    /**
+     * Get the author of the task
+     */
+    public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by_id');
-    }
-
-    /** @return BelongsTo<User, static> */
-    public function assignee(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'assigned_to_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * @return BelongsToMany<Label, static, Pivot, 'pivot'>
+     * Get the user that the task was assigned to
      */
-    public function labels(): BelongsToMany
+    public function assignedTo()
     {
-        return $this->belongsToMany(Label::class, 'label_task', 'task_id', 'label_id')
-            ->withTimestamps();
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Precise filter
+     */
+    public static function filter()
+    {
+        return QueryBuilder::for(Task::class)->allowedFilters([
+                AllowedFilter::exact('status_id'),
+                AllowedFilter::exact('created_by_id'),
+                AllowedFilter::exact('assigned_to_id')
+            ]);
+    }
+
+    /**
+     * Get all labels of the task
+     */
+    public function labels()
+    {
+        return $this->belongsToMany(Label::class);
     }
 }

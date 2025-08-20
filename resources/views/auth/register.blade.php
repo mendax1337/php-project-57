@@ -1,85 +1,53 @@
-<!doctype html>
-<html lang="ru">
-<head>
-    <meta charset="utf-8">
-    <title>Регистрация — Менеджер задач</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100">
-<main class="min-h-screen flex items-center justify-center py-12 px-4">
-    <section class="w-full max-w-xl">
-        <div class="bg-white shadow-md rounded-2xl p-8">
-            <h1 class="text-4xl font-semibold text-center mb-8">Менеджер задач</h1>
+<x-guest-layout>
+    <h2 class="text-center">
+        <a href="{{ route('home') }}">{{ __('header.app_name') }}</a>
+    </h2>
 
-            @if ($errors->any())
-                <div class="mb-6 rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm">
-                    <ul class="list-disc ms-5">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+    <!--Validation Errors-->
+    <x-auth-validation-errors class="mb-4" :errors="$errors" />
 
-            <form method="POST" action="{{ route('register') }}" class="space-y-6">
-                @csrf
+    <form method="POST" action="{{ route('register') }}">
+        @csrf
 
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
-                    <input
-                        id="name" name="name" type="text" value="{{ old('name') }}" required autofocus autocomplete="name"
-                        class="block w-full rounded-xl border border-blue-200 bg-blue-50/60 px-4 py-2.5
-                               shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                    >
-                </div>
-
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input
-                        id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email"
-                        class="block w-full rounded-xl border border-blue-200 bg-blue-50/60 px-4 py-2.5
-                               shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                    >
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Пароль</label>
-                        <input
-                            id="password" name="password" type="password" required autocomplete="new-password"
-                            class="block w-full rounded-xl border border-blue-200 bg-blue-50/60 px-4 py-2.5
-                                   shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                        >
-                    </div>
-                    <div>
-                        <label for="password_confirmation"
-                               class="block text-sm font-medium text-gray-700 mb-1">Подтверждение</label>
-                        <input
-                            id="password_confirmation" name="password_confirmation" type="password" required
-                            autocomplete="new-password"
-                            class="block w-full rounded-xl border border-blue-200 bg-blue-50/60 px-4 py-2.5
-                                   shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                        >
-                    </div>
-                </div>
-
-                <div class="flex justify-end">
-                    <button type="submit"
-                            class="inline-flex justify-center items-center px-6 py-2.5 bg-blue-600 text-white
-                                   rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2
-                                   focus:ring-offset-2 focus:ring-blue-500">
-                        Зарегистрировать
-                    </button>
-                </div>
-            </form>
-
-            <div class="mt-6 text-center text-sm">
-                Уже зарегистрированы?
-                <a class="text-blue-600 hover:underline" href="{{ route('login') }}">Войти</a>
-            </div>
+        <!-- Name -->
+        <div>
+            <x-input-label for="name" :value="__('views.auth.name')" />
+            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required
+                autofocus autocomplete="name" />
         </div>
-    </section>
-</main>
-</body>
-</html>
+
+        <!-- Email Address -->
+        <div class="mt-4">
+            <x-input-label for="email" :value="__('views.auth.email')" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')"
+                required autocomplete="username" />
+        </div>
+
+        <!-- Password -->
+        <div class="mt-4">
+            <x-input-label for="password" :value="__('views.auth.password')" />
+
+            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
+                autocomplete="new-password" />
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mt-4">
+            <x-input-label for="password_confirmation" :value="__('views.auth.confirm_password')" />
+
+            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
+                name="password_confirmation" required autocomplete="new-password" />
+        </div>
+
+        <div class="flex items-center justify-end mt-4">
+            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                href="{{ route('login') }}">
+                {{ __('views.auth.already_registered') }}
+            </a>
+
+            <x-primary-button class="ms-4">
+                {{ __('views.auth.register') }}
+            </x-primary-button>
+        </div>
+    </form>
+</x-guest-layout>

@@ -2,28 +2,51 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreTaskRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     */
     public function authorize(): bool
     {
-        // роут уже под auth, но для phpstan явно вернём true
         return true;
     }
 
     /**
-     * @return array<string, array<int, ValidationRule|string>>
+     * Get the validation rules that apply to the request.
      */
     public function rules(): array
     {
         return [
-            'name'            => ['required', 'string', 'max:255'],
-            'description'     => ['nullable', 'string'],
-            'status_id'       => ['required', 'exists:task_statuses,id'],
-            'assigned_to_id'  => ['nullable', 'exists:users,id'],
+            'name' => ['required', 'max:255', 'string', Rule::unique('tasks', 'name')->ignore($this->task)],
+            'description' => 'string|max:500|nullable',
+            'status_id' => 'required|exists:task_statuses,id',
+            'assigned_to_id' => 'nullable|exists:users,id',
         ];
-        // Имёна полей соответствуют требованиям шага 4
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     */
+    public function messages(): array
+    {
+        return [
+            'name.unique' => __('validation.unique_name'),
+            'name.max' => __('validation.max.string_f'),
+            'description.max' => __('validation.max.string_n'),
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     */
+    public function attributes(): array
+    {
+        return [
+            'name' => __('validation.attributes.task'),
+        ];
     }
 }

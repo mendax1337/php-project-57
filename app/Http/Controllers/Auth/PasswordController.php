@@ -10,17 +10,17 @@ use Illuminate\Validation\Rules\Password;
 
 class PasswordController extends Controller
 {
+    /**
+     * Update the user's password.
+     */
     public function update(Request $request): RedirectResponse
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
-
         $validated = $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password'],
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
-        $user->update([
+        $request->user()->update([
             'password' => Hash::make($validated['password']),
         ]);
 

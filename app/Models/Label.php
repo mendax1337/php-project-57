@@ -2,30 +2,26 @@
 
 namespace App\Models;
 
-use Database\Factories\LabelFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
-/**
- * @phpstan-use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\LabelFactory>
- */
 class Label extends Model
 {
     use HasFactory;
 
+    /**
+     * Properties.
+     */
     protected $fillable = [
         'name',
         'description',
     ];
 
     /**
-     * @return BelongsToMany<Task, static, Pivot, 'pivot'>
+     * Get all tasks with the status.
      */
-    public function tasks(): BelongsToMany
+    public function tasks()
     {
-        return $this->belongsToMany(Task::class, 'label_task', 'label_id', 'task_id')
-            ->withTimestamps();
+        return $this->belongsToMany(Task::class);
     }
 }

@@ -11,9 +11,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // вызывать все нужные сидеры здесь
         $this->call([
+            UserSeeder::class,
+            TaskStatusSeeder::class,
             LabelSeeder::class,
+            TaskSeeder::class,
         ]);
     }
 }
