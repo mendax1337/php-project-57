@@ -23,15 +23,13 @@ Registration and authentication are required to use the system.
 ## Requirements
 
 - PHP **8.3**
-- Composer **2.x**
-- Node.js **18+** and npm **9+** (for frontend build)
-- Laravel **11.x**
-- Database: **SQLite** by default (PostgreSQL/MySQL supported via `.env`)
+- Composer **2.6.6**
+- Laravel **10.10**
+- PostgreSQL **16**
 
 ## Installation
 
 > The project contains a `Makefile`. The commands below use `make`.  
-> If you don’t have `make` installed, run the alternative commands shown in comments.
 
 1. Clone the repository:
 
@@ -44,14 +42,6 @@ Prepare the .env file:
 
 ```bash
 make env
-# or: cp .env.example .env
-```
-
-By default, SQLite is used: database/database.sqlite.
-If the file doesn’t exist, create it manually:
-
-```bash
-touch database/database.sqlite
 ```
 
 Install PHP dependencies:
@@ -66,15 +56,15 @@ Generate the application key:
 make key
 ```
 
-Run migrations and seeders:
+Prepare the database::
 
 ```bash
-php artisan migrate --seed
+make db
 ```
 
-Build the frontend (Vite):
+Make frontend::
 ```bash
-npm install && npm run build
+make frontend
 ```
 
 Start the development server:
@@ -82,7 +72,6 @@ Start the development server:
 ```bash
 make start
 ```
-
 
 Open in browser:
 
@@ -92,11 +81,6 @@ Run tests:
 ```bash
 make test
 ```
-
-Database configuration
-
-By default the app runs with DB_CONNECTION=sqlite.
-To use PostgreSQL or MySQL, set the proper values in .env (DB_CONNECTION=pgsql|mysql, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD) and run migrations again.
 
 The project is deployed on Render:
 
